@@ -31,7 +31,7 @@ Raise `<Version>` in `src/Lyricod-CM-Helper/Lyricod-CM-Helper.csproj`, then run 
 
 ## Licences
 
-The helper is licensed under the Apache License 2.0 (see `LICENSE`). BetterNCM and InfLink-rs are licensed under the GNU GPL v3. The helper downloads them from their own releases and doesn't include them.
+The helper is licensed under the Apache License 2.0 (see `LICENSE`). It includes the .NET runtime (MIT); see `THIRD-PARTY-NOTICES.md`. BetterNCM and InfLink-rs are licensed under the GNU GPL v3. The helper downloads them from their own releases and doesn't include them.
 
 ---
 
