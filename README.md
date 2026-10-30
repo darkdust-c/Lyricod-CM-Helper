@@ -37,7 +37,7 @@ The helper is licensed under the Apache License 2.0 (see `LICENSE`). BetterNCM a
 
 # Lyricod CM Helper（中文）
 
-为 [Lyricod](https://github.com/Indarkdust/Lyricod-App) 设置网易云音乐同步的小工具。只有在 Lyricod 的「设置 > 通用 > 网易云音乐同步」中选择安装时，Lyricod 才会下载并运行它，它不包含在 Lyricod 的安装包中。
+为 [Lyricod](https://github.com/Indarkdust/Lyricod-App) 设置网易云音乐同步的小工具。只有在 Lyricod 的「设置 > 通用 > 网易云音乐歌词同步」中选择安装时，Lyricod 才会下载并运行它，它不包含在 Lyricod 的安装包中。
 
 它会安装第三方开发者制作的 **BetterNCM** 1.3.4（用固定的 SHA-256 校验）和最新版 **InfLink-rs**（用 GitHub 提供的 SHA-256 校验），必要时安装微软签名的 Visual C++ 运行库，然后关闭网易云音乐、复制文件，再由 Lyricod 重新打开网易云音乐。移除时会删除 `msimg32.dll` 和 `InfLink-rs.plugin`。
 
