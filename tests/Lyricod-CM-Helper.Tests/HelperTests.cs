@@ -123,6 +123,27 @@ public class FileTests
     public void AnythingElseIsRefused(string? manifest) =>
         Assert.Throws<HelperException>(() => Plugin.Check(Zip(manifest), "InfLink-rs"));
 
+    static void MakePlugin(string folder, string file, string? manifest)
+    {
+        using var zip = ZipFile.Open(Path.Combine(folder, file), ZipArchiveMode.Create);
+        if (manifest != null)
+            using (var writer = new StreamWriter(zip.CreateEntry("manifest.json").Open())) writer.Write(manifest);
+    }
+
+    [Fact]
+    public void FindsEveryCopyOfAPluginWhateverItsFileIsCalled()
+    {
+        string folder = Directory.CreateTempSubdirectory("cm-helper-plugins-").FullName;
+        MakePlugin(folder, "InfLinkrs-3.4.0.plugin", "{\"name\":\"InfLink-rs\",\"version\":\"3.4.0\"}"); // from BetterNCM's store
+        MakePlugin(folder, "InfLink-rs.plugin", "{\"name\":\"InfLink-rs\"}");
+        MakePlugin(folder, "InfLink-1.1.1.plugin", "{\"name\":\"InfLink\"}"); // the older plugin, not this one
+        MakePlugin(folder, "PluginMarket.plugin", "{\"name\":\"PluginMarket\"}");
+        File.WriteAllText(Path.Combine(folder, "broken.plugin"), "not a zip");
+        var copies = Plugin.Copies(folder, "InfLink-rs").Select(Path.GetFileName).Order().ToList();
+        Assert.Equal(["InfLink-rs.plugin", "InfLinkrs-3.4.0.plugin"], copies);
+        Assert.Empty(Plugin.Copies(Path.Combine(folder, "missing"), "InfLink-rs"));
+    }
+
     [Fact]
     public void ANonZipIsRefused()
     {

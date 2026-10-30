@@ -55,21 +55,32 @@ static class Plugin
 {
     public static void Check(string path, string expectedName)
     {
-        string? name = null;
+        if (Name(path) != expectedName) throw new HelperException($"The download isn't the {expectedName} plugin.");
+    }
+
+    /// <summary>The name in a plugin's manifest, or null when it isn't a plugin.</summary>
+    public static string? Name(string path)
+    {
         try
         {
             using var zip = ZipFile.OpenRead(path);
             var entry = zip.GetEntry("manifest.json");
-            if (entry != null)
-            {
-                using var stream = entry.Open();
-                using var manifest = JsonDocument.Parse(stream);
-                if (manifest.RootElement.ValueKind == JsonValueKind.Object
-                    && manifest.RootElement.TryGetProperty("name", out var value) && value.ValueKind == JsonValueKind.String)
-                    name = value.GetString();
-            }
+            if (entry == null) return null;
+            using var stream = entry.Open();
+            using var manifest = JsonDocument.Parse(stream);
+            return manifest.RootElement.ValueKind == JsonValueKind.Object
+                && manifest.RootElement.TryGetProperty("name", out var value) && value.ValueKind == JsonValueKind.String
+                ? value.GetString() : null;
         }
-        catch (Exception e) when (e is InvalidDataException or JsonException or IOException) { }
-        if (name != expectedName) throw new HelperException($"The download isn't the {expectedName} plugin.");
+        catch (Exception e) when (e is InvalidDataException or JsonException or IOException or UnauthorizedAccessException) { return null; }
     }
+
+    /// <summary>
+    /// The plugins in <paramref name="folder"/> named <paramref name="name"/>, whatever their file is
+    /// called: BetterNCM's plugin store saves InfLink-rs as InfLinkrs-&lt;version&gt;.plugin.
+    /// </summary>
+    public static List<string> Copies(string folder, string name) =>
+        Directory.Exists(folder)
+            ? Directory.EnumerateFiles(folder, "*.plugin").Where(file => Name(file) == name).ToList()
+            : [];
 }

@@ -23,7 +23,11 @@ static class Setup
             Copy(betterNcm, Path.Combine(options.NetEase, LoaderName));
             string plugins = Path.Combine(options.Data, "plugins");
             Directory.CreateDirectory(plugins);
-            Copy(plugin, Path.Combine(plugins, Downloads.PluginName));
+            // Another copy (one from BetterNCM's plugin store has its own file name) would load as well.
+            string target = Path.Combine(plugins, Downloads.PluginName);
+            foreach (var copy in Plugin.Copies(plugins, Downloads.PluginTitle))
+                if (!string.Equals(Path.GetFullPath(copy), Path.GetFullPath(target), StringComparison.OrdinalIgnoreCase)) Delete(copy);
+            Copy(plugin, target);
         }
         finally
         {
@@ -31,13 +35,15 @@ static class Setup
         }
     }
 
-    /// <summary>Takes out what <see cref="InstallAsync"/> put in. BetterNCM's other plugins and data stay.</summary>
+    /// <summary>Takes out BetterNCM and InfLink-rs, however InfLink-rs was installed. BetterNCM's other plugins and data stay.</summary>
     public static void Remove(Options options)
     {
         NetEase.CheckFolder(options.NetEase);
         NetEase.Close();
         Delete(Path.Combine(options.NetEase, LoaderName));
-        Delete(Path.Combine(options.Data, "plugins", Downloads.PluginName));
+        string plugins = Path.Combine(options.Data, "plugins");
+        foreach (var copy in Plugin.Copies(plugins, Downloads.PluginTitle)) Delete(copy);
+        Delete(Path.Combine(plugins, Downloads.PluginName));
     }
 
     /// <summary>A file NetEase just let go of can stay locked for a moment: try a few times.</summary>

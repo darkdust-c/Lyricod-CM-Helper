@@ -12,6 +12,8 @@ namespace LyricodCMHelper;
 static class Downloads
 {
     public const string PluginName = "InfLink-rs.plugin";
+    /// <summary>The name in InfLink-rs's manifest.</summary>
+    public const string PluginTitle = "InfLink-rs";
     public const string InfLinkRepository = "apoint123/inflink-rs";
 
     // BetterNCM 1.3.4, its last release (the project continues as chromatic), for 64-bit NetEase Cloud Music 3.x.
@@ -25,7 +27,7 @@ static class Downloads
     public static HttpClient CreateClient()
     {
         var http = new HttpClient { Timeout = TimeSpan.FromMinutes(3) };
-        http.DefaultRequestHeaders.UserAgent.ParseAdd("Lyricod-CM-Helper/1.0 (+https://github.com/darkdust-c/Lyricod-CM-Helper)");
+        http.DefaultRequestHeaders.UserAgent.ParseAdd("Lyricod-CM-Helper/1.0.1 (+https://github.com/darkdust-c/Lyricod-CM-Helper)");
         return http;
     }
 
@@ -51,7 +53,7 @@ static class Downloads
             ?? throw new HelperException($"InfLink-rs's latest release has no {PluginName}.");
         if (asset.Sha256 == null) throw new HelperException("GitHub lists no checksum for InfLink-rs's latest release, so it can't be checked.");
         string path = await FetchAsync(http, asset.Url, Path.Combine(folder, PluginName), "InfLink-rs", asset.Sha256);
-        Plugin.Check(path, "InfLink-rs");
+        Plugin.Check(path, PluginTitle);
         return path;
     }
 
