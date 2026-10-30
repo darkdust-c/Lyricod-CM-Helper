@@ -1,9 +1,9 @@
 name: Release
 
-# A tag like v1.0.0 drafts a release with the helper. Publish the draft to make it the one Lyricod downloads.
+# Run it from the Actions tab (Release > Run workflow): it builds the helper and drafts a release for the
+# project's version. Publishing the draft creates its tag and makes it the release Lyricod downloads.
 on:
-  push:
-    tags: ['v*']
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -16,14 +16,19 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
-      - name: Check the version
+      - name: Read the version
+        id: version
         shell: pwsh
         env:
-          RELEASE_TAG: ${{ github.ref_name }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           [xml]$project = Get-Content src/Lyricod-CM-Helper/Lyricod-CM-Helper.csproj
           $version = "$($project.Project.PropertyGroup.Version)".Trim()
-          if ($env:RELEASE_TAG -ne "v$version") { throw "Tag $env:RELEASE_TAG doesn't match the project's version ($version)" }
+          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw "Invalid version: $version" }
+          gh release view "v$version" *> $null
+          if ($LASTEXITCODE -eq 0) { throw "There's already a release for v$version. Raise <Version> in the project first." }
+          "version=$version" >> $env:GITHUB_OUTPUT
+          exit 0
       - name: Test
         run: dotnet test --project tests/Lyricod-CM-Helper.Tests
       - name: Publish
@@ -32,8 +37,8 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ github.ref_name }}
         run: |
+          $version = '${{ steps.version.outputs.version }}'
           if (-not (Test-Path publish/Lyricod-CM-Helper.exe)) { throw 'Lyricod-CM-Helper.exe missing' }
-          gh release create $env:RELEASE_TAG publish/Lyricod-CM-Helper.exe --verify-tag --draft --title "Lyricod CM Helper $($env:RELEASE_TAG.Substring(1))" --notes "Downloaded by Lyricod when you set up NetEase Cloud Music sync. See the README for what it does."
+          gh release create "v$version" publish/Lyricod-CM-Helper.exe --target $env:GITHUB_SHA --draft --title "Lyricod CM Helper $version" --notes "Downloaded by Lyricod when you set up NetEase Cloud Music sync. See the README for what it does."
           if ($LASTEXITCODE -ne 0) { throw 'Draft release creation failed' }

@@ -25,6 +25,10 @@ When you remove, it closes NetEase Cloud Music and deletes `msimg32.dll` and `In
 - Windows asks for administrator permission, because NetEase Cloud Music is installed in Program Files.
 - Some antivirus software may warn about BetterNCM or this helper, since they add a file to another program's folder.
 
+## Releasing
+
+Raise `<Version>` in `src/Lyricod-CM-Helper/Lyricod-CM-Helper.csproj`, then run the **Release** workflow from the Actions tab. It builds the helper and drafts a release; publishing the draft creates its tag and makes it the one Lyricod downloads.
+
 ## Licences
 
 The helper is licensed under the Apache License 2.0 (see `LICENSE`). BetterNCM and InfLink-rs are licensed under the GNU GPL v3. The helper downloads them from their own releases and doesn't include them.
