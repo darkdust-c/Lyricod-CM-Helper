@@ -41,6 +41,6 @@ jobs:
           $version = '${{ steps.version.outputs.version }}'
           if (-not (Test-Path publish/Lyricod-CM-Helper.exe)) { throw 'Lyricod-CM-Helper.exe missing' }
           # The licences travel with the exe: its own, and those of the .NET it includes.
-          Compress-Archive -Path LICENSE, THIRD-PARTY-NOTICES.md, licenses -DestinationPath publish/Lyricod-CM-Helper-licences.zip
+          Compress-Archive -Path LICENSE, NOTICE, THIRD-PARTY-NOTICES.md, licenses -DestinationPath publish/Lyricod-CM-Helper-licences.zip
           gh release create "v$version" publish/Lyricod-CM-Helper.exe publish/Lyricod-CM-Helper-licences.zip --target $env:GITHUB_SHA --draft --title "Lyricod CM Helper $version" --notes "Downloaded by Lyricod when you set up NetEase Cloud Music sync. See the README for what it does."
           if ($LASTEXITCODE -ne 0) { throw 'Draft release creation failed' }
